@@ -1,0 +1,13 @@
+# Versions used to produce the published results (Python 3.12).
+name: cs2-tradeup-parity
+channels:
+  - conda-forge
+dependencies:
+  - python=3.12
+  - numpy=2.5
+  - scipy=1.18
+  - pandas=3.0
+  - matplotlib=3.11
+  - pyarrow=25.0          # parquet snapshots and panels
+  - requests=2.34         # Skinport API and item schema (collect_snapshot.py, 02 --reselect)
+  - brotli-python=1.2     # Skinport's API only serves brotli-compressed responses

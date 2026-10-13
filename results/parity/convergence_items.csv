@@ -1,0 +1,14 @@
+market_hash_name,pre_ratio_to_pstar,days_to_0.9_pstar,lambda,half_life_days,at_bound,d_inf,settled_ratio
+MP9 | Starlight Protector (Field-Tested),0.030,12,2.070,0.335,False,-0.018,1.018
+AK-47 | Nightwish (Field-Tested),0.098,13,1.596,0.434,False,0.024,0.976
+AK-47 | Legion of Anubis (Minimal Wear),0.290,0,2.368,0.293,False,-0.122,1.130
+M4A4 | Temukau (Field-Tested),0.328,0,1.932,0.359,False,-0.249,1.282
+USP-S | The Traitor (Field-Tested),0.369,0,1.773,0.391,False,-0.060,1.062
+M4A4 | Neo-Noir (Minimal Wear),0.712,0,0.118,5.889,False,-1.011,2.748
+AK-47 | Neon Rider (Field-Tested),0.841,2,,,False,,
+USP-S | Printstream (Field-Tested),0.863,0,,,False,,
+Desert Eagle | Printstream (Field-Tested),0.932,0,,,False,,
+AK-47 | Asiimov (Minimal Wear),0.973,0,,,False,,
+M4A4 | The Emperor (Minimal Wear),0.978,2,,,False,,
+AWP | Printstream (Field-Tested),0.981,0,,,False,,
+AWP | Chrome Cannon (Field-Tested),0.993,0,,,False,,

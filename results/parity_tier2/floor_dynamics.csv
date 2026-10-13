@@ -1,0 +1,39 @@
+case,item,ratio_now,days_post,median_dev_post,share_days_below_0.9,ar1_phi,half_life_days,median_dev_pre,share_days_below_0.9_pre
+Recoil Case,AWP | Chromatic Aberration (Field-Tested),1.092,347,0.973,0.141,0.947,12.610,0.101,1.000
+Prisma 2 Case,Glock-18 | Bullet Queen (Field-Tested),1.106,347,1.034,0.017,0.755,2.461,0.054,1.000
+Prisma Case,Five-SeveN | Angry Mob (Field-Tested),1.112,347,1.022,0.014,0.729,2.190,0.034,1.000
+CS:GO Weapon Case 3,CZ75-Auto | Victoria (Minimal Wear),1.131,239,1.033,0.121,0.596,1.341,0.043,1.000
+Operation Phoenix Weapon Case,AUG | Chameleon (Minimal Wear),1.144,345,1.053,0.046,0.830,3.729,0.020,1.000
+eSports 2014 Summer Case,M4A4 | Bullet Rain (Minimal Wear),1.154,292,1.287,0.014,0.844,4.079,0.318,1.000
+Winter Offensive Weapon Case,Sawed-Off | The Kraken (Factory New),1.158,276,1.070,0.072,0.494,0.983,0.051,1.000
+Operation Vanguard Weapon Case,AK-47 | Wasteland Rebel (Field-Tested),1.159,340,1.054,0.044,0.828,3.682,0.261,1.000
+eSports 2013 Case,P90 | Death by Kitty (Minimal Wear),1.194,179,1.385,0.006,0.595,1.334,0.341,1.000
+Dreams & Nightmares Case,AK-47 | Nightwish (Field-Tested),1.195,347,1.085,0.014,0.938,10.778,0.056,1.000
+Fever Case,FAMAS | Bad Trip (Field-Tested),1.206,347,1.119,0.014,0.876,5.217,0.025,1.000
+Revolver Case,M4A4 | Royal Paladin (Minimal Wear),1.225,326,1.235,0.015,0.865,4.788,0.257,1.000
+Operation Broken Fang Case,Glock-18 | Neo-Noir (Field-Tested),1.241,346,1.102,0.014,0.902,6.756,0.212,1.000
+Horizon Case,Desert Eagle | Code Red (Field-Tested),1.247,347,1.182,0.000,0.687,1.844,0.275,1.000
+Gamma Case,Glock-18 | Wasteland Rebel (Minimal Wear),1.248,347,1.087,0.020,0.794,3.008,0.027,1.000
+Snakebite Case,USP-S | The Traitor (Field-Tested),1.248,347,1.103,0.006,0.929,9.456,0.227,1.000
+Operation Riptide Case,Desert Eagle | Ocean Drive (Field-Tested),1.251,342,1.143,0.015,0.893,6.117,0.145,1.000
+Gamma 2 Case,FAMAS | Roll Cage (Field-Tested),1.257,347,1.112,0.014,0.880,5.432,0.012,1.000
+eSports 2013 Winter Case,M4A4 | X-Ray (Minimal Wear),1.279,296,1.280,0.010,0.647,1.592,0.246,1.000
+Revolution Case,AK-47 | Head Shot (Field-Tested),1.288,347,1.204,0.000,0.928,9.260,0.111,1.000
+Spectrum 2 Case,P250 | See Ya Later (Field-Tested),1.352,347,1.072,0.055,0.947,12.702,0.017,1.000
+Danger Zone Case,AWP | Neo-Noir (Factory New),1.361,347,1.410,0.000,0.665,1.699,0.462,1.000
+Chroma Case,Galil AR | Chatterbox (Battle-Scarred),1.361,345,1.181,0.017,0.805,3.200,0.068,1.000
+Spectrum Case,USP-S | Neo-Noir (Field-Tested),1.366,347,1.072,0.049,0.955,15.002,0.092,1.000
+Chroma 3 Case,M4A1-S | Chantico's Fire (Field-Tested),1.373,347,1.218,0.012,0.817,3.424,0.168,1.000
+CS:GO Weapon Case 2,SSG 08 | Blood in the Water (Minimal Wear),1.391,336,1.384,0.000,0.665,1.698,0.435,1.000
+Chroma 2 Case,M4A1-S | Hyper Beast (Field-Tested),1.393,347,1.197,0.014,0.903,6.772,0.139,1.000
+Fracture Case,AK-47 | Legion of Anubis (Minimal Wear),1.399,347,1.288,0.000,0.955,15.020,0.111,1.000
+Shattered Web Case,MAC-10 | Stalker (Field-Tested),1.407,343,1.269,0.000,0.817,3.435,0.179,1.000
+Huntsman Weapon Case,M4A4 | Desert-Strike (Minimal Wear),1.537,330,1.689,0.000,0.865,4.784,0.298,0.945
+Falchion Case,AWP | Hyper Beast (Field-Tested),1.606,347,1.656,0.000,0.783,2.827,0.759,1.000
+Clutch Case,MP7 | Bloodsport (Minimal Wear),1.753,347,1.675,0.000,0.433,0.828,0.049,1.000
+Kilowatt Case,AWP | Chrome Cannon (Field-Tested),1.797,347,1.640,0.000,0.957,15.627,0.542,1.000
+Operation Wildfire Case,M4A4 | The Battlestar (Minimal Wear),1.805,341,2.105,0.000,0.975,27.089,0.340,0.919
+Gallery Case,Glock-18 | Gold Toof (Minimal Wear),2.458,347,2.534,0.000,0.906,7.019,0.507,0.832
+Operation Bravo Case,Desert Eagle | Golden Koi (Factory New),3.561,188,5.362,0.000,0.839,3.941,1.561,0.020
+Shadow Case,M4A1-S | Golden Coil (Field-Tested),5.285,347,5.172,0.000,0.825,3.595,2.518,0.000
+CS:GO Weapon Case,AWP | Lightning Strike (Factory New),7.910,281,8.311,0.007,-0.029,,4.562,0.000

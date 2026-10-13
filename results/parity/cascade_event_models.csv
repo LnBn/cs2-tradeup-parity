@@ -1,0 +1,13 @@
+segment,model,slope,se,intercept,r2,n,log_price_coef,log_price_se,output_index_shift
+Classified (case),"change ~ max(0, gap)  [parity]",0.903,0.116,0.156,0.871,11,,,0.226
+Classified (case),"placebo: pre-window change ~ max(0, gap)",-0.046,0.056,0.090,0.071,11,,,0.226
+Classified (case),change ~ log pre-event price  [rival],-0.201,0.087,0.710,0.376,11,,,0.226
+Classified (case),"joint: change ~ max(0,gap) + log price",0.921,0.166,0.136,0.883,11,0.009,0.056,0.226
+Restricted (case),"change ~ max(0, gap)  [parity]",2.630,1.057,0.157,0.470,9,,,0.190
+Restricted (case),"placebo: pre-window change ~ max(0, gap)",0.847,1.179,-0.164,0.069,9,,,0.190
+Restricted (case),change ~ log pre-event price  [rival],-0.277,0.098,0.474,0.536,9,,,0.190
+Restricted (case),"joint: change ~ max(0,gap) + log price",0.891,1.968,0.382,0.601,9,-0.203,0.194,0.190
+pooled,"change ~ max(0, gap)  [parity]",0.925,0.179,0.182,0.596,20,,,
+pooled,"placebo: pre-window change ~ max(0, gap)",0.174,0.189,-0.040,0.045,20,,,
+pooled,change ~ log pre-event price  [rival],-0.142,0.064,0.497,0.216,20,,,
+pooled,"joint: change ~ max(0,gap) + log price",0.833,0.179,0.298,0.673,20,-0.078,0.045,

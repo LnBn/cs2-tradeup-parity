@@ -1,0 +1,9 @@
+fee,model,slope,se,intercept,r2,n,log_price_coef,log_price_se
+0.000,"change ~ max(0, gap)  [parity]",0.939,0.051,0.191,0.943,23,,
+0.000,"placebo: pre-window change ~ max(0, gap)",-0.006,0.021,0.062,0.004,23,,
+0.080,"change ~ max(0, gap)  [parity]",0.959,0.054,0.222,0.937,23,,
+0.080,"placebo: pre-window change ~ max(0, gap)",-0.005,0.021,0.061,0.003,23,,
+0.150,"change ~ max(0, gap)  [parity]",0.979,0.059,0.245,0.929,23,,
+0.150,"placebo: pre-window change ~ max(0, gap)",-0.005,0.022,0.061,0.002,23,,
+,change ~ log pre-event price  [rival],-0.726,0.076,3.183,0.811,23,,
+0.000,"joint: change ~ max(0,gap) + log price",0.713,0.077,1.078,0.966,23,-0.222,0.064

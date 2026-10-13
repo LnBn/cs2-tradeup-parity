@@ -1,0 +1,9 @@
+model,slope,se,intercept,r2,n,log_price_coef,log_price_se,spec,boot_lo,boot_hi,case_boot_lo,case_boot_hi,n_below_floor_pre,post_ratio_median_below,post_ratio_iqr_below
+"change ~ max(0, gap)  [parity]",0.889,0.029,0.321,0.928,77,,,global index,0.840,0.935,0.846,0.924,52,1.095,0.98-1.26
+"placebo: pre-window change ~ max(0, gap)",0.007,0.016,-0.013,0.003,77,,,global index,,,,,52,1.095,0.98-1.26
+change ~ log pre-event price  [rival],-0.692,0.051,3.482,0.714,77,,,global index,,,,,52,1.095,0.98-1.26
+"joint: change ~ max(0,gap) + log price",0.785,0.050,0.789,0.934,77,-0.111,0.045,global index,,,,,52,1.095,0.98-1.26
+"change ~ max(0, gap)  [parity]",0.906,0.030,0.304,0.932,70,,,case-specific index,0.850,0.953,0.860,0.942,48,1.124,1.01-1.24
+"placebo: pre-window change ~ max(0, gap)",0.011,0.017,-0.014,0.006,70,,,case-specific index,,,,,48,1.124,1.01-1.24
+change ~ log pre-event price  [rival],-0.737,0.045,3.561,0.795,70,,,case-specific index,,,,,48,1.124,1.01-1.24
+"joint: change ~ max(0,gap) + log price",0.754,0.059,0.943,0.941,70,-0.152,0.052,case-specific index,,,,,48,1.124,1.01-1.24

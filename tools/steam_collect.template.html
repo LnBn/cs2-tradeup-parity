@@ -1,0 +1,191 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Steam Price Collector</title>
+<style>
+  :root {
+    --bg: #fbfaf7; --fg: #1d1c1a; --muted: #6b6963; --line: #e3e1db; --card: #ffffff;
+    --accent: #2a78d6; --ok: #1a7f4e; --bad: #b3261e; --warn-bg: #fff4d6;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --bg: #161614; --fg: #ecebe7; --muted: #a09e97; --line: #34332f; --card: #1f1f1c;
+      --accent: #6aa8f0; --ok: #5cc48f; --bad: #f08a80; --warn-bg: #3a3220;
+    }
+  }
+  * { box-sizing: border-box; }
+  body { margin: 0; background: var(--bg); color: var(--fg);
+         font: 14px/1.45 system-ui, -apple-system, "Segoe UI", sans-serif; }
+  main { max-width: 1100px; margin: 0 auto; padding: 20px 16px 60px; }
+  h1 { font-size: 20px; margin: 0 0 6px; }
+  ol { padding-left: 20px; margin: 8px 0 14px; }
+  code { background: var(--line); padding: 1px 4px; border-radius: 3px; }
+  .bar { position: sticky; top: 0; background: var(--bg); padding: 10px 0;
+         border-bottom: 1px solid var(--line); display: flex; gap: 10px;
+         align-items: center; flex-wrap: wrap; z-index: 1; }
+  .progress { flex: 1 1 200px; height: 8px; background: var(--line); border-radius: 4px; }
+  .progress > div { height: 100%; background: var(--ok); border-radius: 4px; width: 0; }
+  button, .btn { font: inherit; padding: 6px 12px; border: 1px solid var(--line);
+                 background: var(--card); color: var(--fg); border-radius: 6px; cursor: pointer; }
+  button.primary { background: var(--accent); color: #fff; border-color: var(--accent); }
+  #banner { display: none; background: var(--warn-bg); padding: 8px 12px; border-radius: 6px;
+            margin-top: 10px; }
+  table { width: 100%; border-collapse: collapse; margin-top: 12px; }
+  td { border-bottom: 1px solid var(--line); padding: 8px 6px; vertical-align: top; }
+  td.n { color: var(--muted); width: 2.5em; }
+  .seg { color: var(--muted); font-size: 12px; }
+  .name a { color: var(--accent); }
+  textarea { width: 100%; min-width: 180px; height: 34px; font: 12px ui-monospace, monospace;
+             background: var(--card); color: var(--fg); border: 1px solid var(--line);
+             border-radius: 4px; resize: vertical; }
+  .status { font-size: 12px; min-width: 14em; }
+  .ok { color: var(--ok); } .bad { color: var(--bad); }
+  tr.done td { opacity: .65; }
+  @media (max-width: 700px) { td.n, .seg { display: none; } }
+</style>
+</head>
+<body>
+<main>
+  <h1>Steam price history: manual collection<span id="listname"></span></h1>
+  <p>Nothing on this page contacts Steam. You open each link yourself, in a browser where you are
+     logged in to Steam, and paste what it shows.</p>
+  <ol>
+    <li>Click <b>Open price history</b> for an item. A page of JSON opens in a new tab
+        (if you see <code>[]</code> or an error, you are not logged in, or Steam is throttling: wait a minute).</li>
+    <li>Copy all of it. In Firefox, choose <b>Raw Data</b>, then <b>Copy</b>. In Chrome, press Ctrl+A, then Ctrl+C.</li>
+    <li>Paste into that item's box. A green tick means it parsed, and the box empties itself.</li>
+    <li>When you are done (or want to stop), click <b>Download data</b> and move the file to
+        <code>data/manual_steam/</code> in the project folder.</li>
+  </ol>
+  <p class="seg">Progress is kept in this browser while you work. Items are interleaved across segments,
+     so stopping part-way still gives a balanced sample. Go at a relaxed pace.</p>
+
+  <div class="bar">
+    <span id="count">0 / 0</span>
+    <div class="progress"><div id="fill"></div></div>
+    <button class="primary" id="dl">Download data</button>
+    <label class="btn">Load file<input type="file" id="load" accept=".json" hidden></label>
+    <button id="clear">Clear all</button>
+  </div>
+  <div id="banner"></div>
+  <table><tbody id="rows"></tbody></table>
+</main>
+
+<script>
+const ITEMS = /*__ITEMS__*/[];
+const STORE_KEY = /*__STORE_KEY__*/"cs2-steam-manual-v1";
+let data = {};   // name -> {price_prefix, price_suffix, prices, captured_at}
+
+function save() {
+  try { localStorage.setItem(STORE_KEY, JSON.stringify(data)); }
+  catch (e) {
+    showBanner("This browser can't store more progress. Click Download data now; " +
+               "later you can use Load file to carry on.");
+  }
+}
+function restore() {
+  try { data = JSON.parse(localStorage.getItem(STORE_KEY) || "{}") || {}; }
+  catch (e) { data = {}; }
+}
+function showBanner(msg) { const b = document.getElementById("banner"); b.textContent = msg; b.style.display = "block"; }
+
+function historyUrl(name) {
+  return "https://steamcommunity.com/market/pricehistory/?appid=730&market_hash_name=" + encodeURIComponent(name);
+}
+function listingUrl(name) {
+  return "https://steamcommunity.com/market/listings/730/" + encodeURIComponent(name);
+}
+function describe(rec) {
+  const p = rec.prices;
+  return `✓ ${p.length} points, ${p[0][0].slice(0, 11)} → ${p[p.length - 1][0].slice(0, 11)}`;
+}
+
+function render() {
+  const tbody = document.getElementById("rows");
+  tbody.innerHTML = "";
+  ITEMS.forEach((it, i) => {
+    const tr = document.createElement("tr");
+    const rec = data[it.name];
+    if (rec) tr.className = "done";
+    tr.innerHTML = `
+      <td class="n">${i + 1}</td>
+      <td class="name"><div>${escapeHtml(it.name)}</div><div class="seg">${escapeHtml(it.segment)}</div>
+          <a href="${historyUrl(it.name)}" target="_blank" rel="noopener">Open price history</a>
+          · <a href="${listingUrl(it.name)}" target="_blank" rel="noopener">listing</a></td>
+      <td><textarea placeholder="paste JSON here"></textarea></td>
+      <td class="status ${rec ? "ok" : ""}">${rec ? describe(rec) : ""}</td>`;
+    const ta = tr.querySelector("textarea"), st = tr.querySelector(".status");
+    ta.addEventListener("input", () => accept(it.name, ta, st, tr));
+    tbody.appendChild(tr);
+  });
+  updateCount();
+}
+
+function accept(name, ta, st, tr) {
+  const text = ta.value.trim();
+  if (!text) return;
+  let obj;
+  try { obj = JSON.parse(text); }
+  catch (e) { st.className = "status bad"; st.textContent = "Not complete JSON yet: copy the whole page."; return; }
+  if (Array.isArray(obj) && obj.length === 0) {
+    st.className = "status bad"; st.textContent = "Empty ([]): log in to Steam in this browser, then reopen the link."; return;
+  }
+  if (!obj || obj.success !== true || !Array.isArray(obj.prices) || obj.prices.length === 0) {
+    st.className = "status bad"; st.textContent = "Doesn't look like a price history (success/prices missing)."; return;
+  }
+  data[name] = { price_prefix: obj.price_prefix || "", price_suffix: obj.price_suffix || "",
+                 prices: obj.prices, captured_at: new Date().toISOString() };
+  ta.value = "";
+  st.className = "status ok"; st.textContent = describe(data[name]);
+  tr.className = "done";
+  save(); updateCount();
+}
+
+function updateCount() {
+  const n = ITEMS.filter(it => data[it.name]).length;
+  document.getElementById("count").textContent = `${n} / ${ITEMS.length}`;
+  document.getElementById("fill").style.width = (ITEMS.length ? 100 * n / ITEMS.length : 0) + "%";
+}
+
+function escapeHtml(s) {
+  return s.replace(/[&<>"']/g, c => ({"&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;"}[c]));
+}
+
+document.getElementById("dl").addEventListener("click", () => {
+  const bundle = { format: "steam_pricehistory_manual_v1", saved_at: new Date().toISOString(), items: data };
+  const blob = new Blob([JSON.stringify(bundle)], { type: "application/json" });
+  const stamp = new Date().toISOString().slice(0, 16).replace(/[-:]/g, "").replace("T", "-");
+  const a = document.createElement("a");
+  a.href = URL.createObjectURL(blob);
+  a.download = `steam_pricehistory_manual_${stamp}.json`;
+  a.click();
+  URL.revokeObjectURL(a.href);
+});
+
+document.getElementById("load").addEventListener("change", async (ev) => {
+  const file = ev.target.files[0];
+  if (!file) return;
+  try {
+    const bundle = JSON.parse(await file.text());
+    if (bundle.format !== "steam_pricehistory_manual_v1") throw new Error("unexpected format");
+    Object.assign(data, bundle.items);
+    save(); render();
+  } catch (e) { showBanner("Could not load that file: " + e.message); }
+  ev.target.value = "";
+});
+
+document.getElementById("clear").addEventListener("click", () => {
+  if (confirm("Delete all collected data from this page? (Download it first if you want to keep it.)")) {
+    data = {}; save(); render();
+  }
+});
+
+const LIST_NAME = /*__LIST_NAME__*/"";
+if (LIST_NAME) document.getElementById("listname").textContent = " (" + LIST_NAME + ")";
+restore();
+render();
+</script>
+</body>
+</html>

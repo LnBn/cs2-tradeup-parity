@@ -1,0 +1,7 @@
+segment,two_week_log_change,pre_weekly_sd,z_score,n_pre_weeks
+Knife,-0.486,0.025,-13.800,25
+Gloves,-0.491,0.027,-12.631,25
+Covert (gold pool),0.015,0.021,0.511,25
+Covert (no gold pool),-0.243,0.042,-4.055,25
+Classified (case),0.168,0.024,4.986,25
+Restricted (case),-0.035,0.024,-1.004,25

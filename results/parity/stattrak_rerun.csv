@@ -1,0 +1,13 @@
+pricing,knife outputs need >= N sales in 90d,stattrak,n_items,n_groups,median_ratio,share_below_0.85,cheapest_median_ratio,share_cheapest_in_0.85-1.25
+v06: phases by listing-qty-weighted ask,0,False,285,43,1.284,0.000,1.126,0.744
+v06: phases by listing-qty-weighted ask,0,True,93,24,1.194,0.215,1.026,0.250
+v06: phases by listing-qty-weighted ask,3,False,241,40,1.253,0.000,1.105,0.775
+v06: phases by listing-qty-weighted ask,3,True,34,10,0.993,0.324,0.806,0.200
+phases by 90-day sale counts (preferred),0,False,285,43,1.391,0.000,1.190,0.581
+phases by 90-day sale counts (preferred),0,True,93,24,1.473,0.000,1.260,0.458
+phases by 90-day sale counts (preferred),3,False,241,40,1.365,0.000,1.193,0.625
+phases by 90-day sale counts (preferred),3,True,34,10,1.329,0.000,1.082,0.700
+"phases 1-4 equal, gems ignored",0,False,285,43,1.384,0.000,1.188,0.605
+"phases 1-4 equal, gems ignored",0,True,93,24,1.463,0.000,1.254,0.500
+"phases 1-4 equal, gems ignored",3,False,241,40,1.359,0.000,1.189,0.650
+"phases 1-4 equal, gems ignored",3,True,34,10,1.386,0.000,1.158,0.700

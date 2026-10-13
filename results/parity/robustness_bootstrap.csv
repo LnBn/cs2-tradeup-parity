@@ -1,0 +1,19 @@
+spec,group,statistic,estimate,ci_lo,ci_hi,resampled
+scripts/06 baseline,nonST,median_ratio,1.284,1.242,1.384,items
+scripts/06 baseline,nonST,share_below_0.85,0.000,0.000,0.000,items
+scripts/06 baseline,nonST,cheapest_median_ratio,1.126,1.092,1.158,cases
+scripts/06 baseline,nonST,cheapest_slope,0.808,0.664,0.941,cases
+scripts/06 baseline,ST,median_ratio,1.194,1.034,1.439,items
+scripts/06 baseline,ST,share_below_0.85,0.215,0.129,0.301,items
+scripts/06 baseline,ST,cheapest_median_ratio,1.026,0.830,1.357,cases
+scripts/06 baseline,ST,cheapest_slope,0.351,0.136,0.552,cases
+scripts/06 baseline,event (Steam),"slope on max(0,gap)",0.939,0.892,1.102,items
+preferred,nonST,median_ratio,1.391,1.359,1.430,items
+preferred,nonST,share_below_0.85,0.000,0.000,0.000,items
+preferred,nonST,cheapest_median_ratio,1.190,1.126,1.283,cases
+preferred,nonST,cheapest_slope,0.833,0.694,0.969,cases
+preferred,ST,median_ratio,1.473,1.314,1.657,items
+preferred,ST,share_below_0.85,0.000,0.000,0.000,items
+preferred,ST,cheapest_median_ratio,1.260,1.137,1.402,cases
+preferred,ST,cheapest_slope,0.610,0.301,0.849,cases
+preferred,event (Steam),"slope on max(0,gap)",0.969,0.928,1.133,items

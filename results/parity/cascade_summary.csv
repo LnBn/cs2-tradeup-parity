@@ -1,0 +1,17 @@
+test,collection_type,stattrak,n_items,n_groups,median_ratio,share_below_0.85,cheapest_median_ratio,cheapest_iqr,share_cheapest_in_0.85-1.25,median_ratio_ci,cheapest_slope,cheapest_slope_se
+Classified -> Covert,case,False,403,43,1.235,0.007,1.017,0.94-1.24,0.698,1.18-1.32,1.263,0.102
+Classified -> Covert,case,True,266,41,1.570,0.000,1.155,0.97-1.65,0.585,1.45-1.71,1.292,0.077
+Classified -> Covert,no gold pool,False,90,14,1.596,0.022,1.312,1.16-1.72,0.286,1.48-1.73,1.424,0.210
+Classified -> Covert,no gold pool,True,11,1,1.681,0.000,1.326,1.33-1.33,0.000,1.49-1.86,,
+Restricted -> Classified,case,False,610,43,1.475,0.010,1.014,0.93-1.29,0.605,1.38-1.56,1.106,0.042
+Restricted -> Classified,case,True,462,41,1.593,0.035,1.019,0.88-1.34,0.463,1.51-1.79,1.199,0.057
+Restricted -> Classified,no gold pool,False,209,29,1.807,0.000,1.254,1.06-1.92,0.483,1.54-1.99,0.953,0.055
+Restricted -> Classified,no gold pool,True,10,1,1.200,0.100,0.831,0.83-0.83,0.000,1.00-4.36,,
+placebo: Mil-Spec priced vs Classified,case,False,716,43,0.395,0.830,0.239,0.14-0.31,0.047,0.37-0.42,1.194,0.094
+placebo: Mil-Spec priced vs Classified,case,True,495,43,0.379,0.780,0.192,0.15-0.37,0.047,0.33-0.42,1.201,0.078
+placebo: Mil-Spec priced vs Classified,no gold pool,False,279,28,0.292,0.806,0.266,0.13-0.44,0.143,0.27-0.34,1.063,0.081
+placebo: Mil-Spec priced vs Classified,no gold pool,True,11,1,0.184,1.000,0.146,0.15-0.15,0.000,0.17-0.25,,
+placebo: Restricted priced vs Covert,case,False,609,43,0.202,0.885,0.131,0.11-0.21,0.070,0.19-0.23,1.480,0.157
+placebo: Restricted priced vs Covert,case,True,461,41,0.286,0.887,0.176,0.11-0.30,0.049,0.26-0.31,1.504,0.135
+placebo: Restricted priced vs Covert,no gold pool,False,131,18,0.258,0.924,0.213,0.18-0.48,0.000,0.24-0.29,1.135,0.129
+placebo: Restricted priced vs Covert,no gold pool,True,10,1,0.199,1.000,0.144,0.14-0.14,0.000,0.17-0.69,,

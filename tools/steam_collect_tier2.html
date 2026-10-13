@@ -1,0 +1,191 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Steam Price Collector</title>
+<style>
+  :root {
+    --bg: #fbfaf7; --fg: #1d1c1a; --muted: #6b6963; --line: #e3e1db; --card: #ffffff;
+    --accent: #2a78d6; --ok: #1a7f4e; --bad: #b3261e; --warn-bg: #fff4d6;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --bg: #161614; --fg: #ecebe7; --muted: #a09e97; --line: #34332f; --card: #1f1f1c;
+      --accent: #6aa8f0; --ok: #5cc48f; --bad: #f08a80; --warn-bg: #3a3220;
+    }
+  }
+  * { box-sizing: border-box; }
+  body { margin: 0; background: var(--bg); color: var(--fg);
+         font: 14px/1.45 system-ui, -apple-system, "Segoe UI", sans-serif; }
+  main { max-width: 1100px; margin: 0 auto; padding: 20px 16px 60px; }
+  h1 { font-size: 20px; margin: 0 0 6px; }
+  ol { padding-left: 20px; margin: 8px 0 14px; }
+  code { background: var(--line); padding: 1px 4px; border-radius: 3px; }
+  .bar { position: sticky; top: 0; background: var(--bg); padding: 10px 0;
+         border-bottom: 1px solid var(--line); display: flex; gap: 10px;
+         align-items: center; flex-wrap: wrap; z-index: 1; }
+  .progress { flex: 1 1 200px; height: 8px; background: var(--line); border-radius: 4px; }
+  .progress > div { height: 100%; background: var(--ok); border-radius: 4px; width: 0; }
+  button, .btn { font: inherit; padding: 6px 12px; border: 1px solid var(--line);
+                 background: var(--card); color: var(--fg); border-radius: 6px; cursor: pointer; }
+  button.primary { background: var(--accent); color: #fff; border-color: var(--accent); }
+  #banner { display: none; background: var(--warn-bg); padding: 8px 12px; border-radius: 6px;
+            margin-top: 10px; }
+  table { width: 100%; border-collapse: collapse; margin-top: 12px; }
+  td { border-bottom: 1px solid var(--line); padding: 8px 6px; vertical-align: top; }
+  td.n { color: var(--muted); width: 2.5em; }
+  .seg { color: var(--muted); font-size: 12px; }
+  .name a { color: var(--accent); }
+  textarea { width: 100%; min-width: 180px; height: 34px; font: 12px ui-monospace, monospace;
+             background: var(--card); color: var(--fg); border: 1px solid var(--line);
+             border-radius: 4px; resize: vertical; }
+  .status { font-size: 12px; min-width: 14em; }
+  .ok { color: var(--ok); } .bad { color: var(--bad); }
+  tr.done td { opacity: .65; }
+  @media (max-width: 700px) { td.n, .seg { display: none; } }
+</style>
+</head>
+<body>
+<main>
+  <h1>Steam price history: manual collection<span id="listname"></span></h1>
+  <p>Nothing on this page contacts Steam. You open each link yourself, in a browser where you are
+     logged in to Steam, and paste what it shows.</p>
+  <ol>
+    <li>Click <b>Open price history</b> for an item. A page of JSON opens in a new tab
+        (if you see <code>[]</code> or an error, you are not logged in, or Steam is throttling: wait a minute).</li>
+    <li>Copy all of it. In Firefox, choose <b>Raw Data</b>, then <b>Copy</b>. In Chrome, press Ctrl+A, then Ctrl+C.</li>
+    <li>Paste into that item's box. A green tick means it parsed, and the box empties itself.</li>
+    <li>When you are done (or want to stop), click <b>Download data</b> and move the file to
+        <code>data/manual_steam/</code> in the project folder.</li>
+  </ol>
+  <p class="seg">Progress is kept in this browser while you work. Items are interleaved across segments,
+     so stopping part-way still gives a balanced sample. Go at a relaxed pace.</p>
+
+  <div class="bar">
+    <span id="count">0 / 0</span>
+    <div class="progress"><div id="fill"></div></div>
+    <button class="primary" id="dl">Download data</button>
+    <label class="btn">Load file<input type="file" id="load" accept=".json" hidden></label>
+    <button id="clear">Clear all</button>
+  </div>
+  <div id="banner"></div>
+  <table><tbody id="rows"></tbody></table>
+</main>
+
+<script>
+const ITEMS = [{"name": "FAMAS | Bad Trip (Field-Tested)", "segment": "P1 · covert · Fever Case"}, {"name": "AWP | Hyper Beast (Field-Tested)", "segment": "P1 · covert · Falchion Case"}, {"name": "M4A1-S | Player Two (Minimal Wear)", "segment": "P1 · covert · Prisma 2 Case"}, {"name": "AK-47 | Vulcan (Field-Tested)", "segment": "P1 · covert · Huntsman Weapon Case"}, {"name": "AK-47 | Head Shot (Field-Tested)", "segment": "P1 · covert · Revolution Case"}, {"name": "AK-47 | The Empress (Field-Tested)", "segment": "P1 · covert · Spectrum 2 Case"}, {"name": "M4A1-S | Hyper Beast (Field-Tested)", "segment": "P1 · covert · Chroma 2 Case"}, {"name": "Desert Eagle | Code Red (Field-Tested)", "segment": "P1 · covert · Horizon Case"}, {"name": "AWP | Lightning Strike (Factory New)", "segment": "P1 · covert · CS:GO Weapon Case"}, {"name": "MP7 | Bloodsport (Minimal Wear)", "segment": "P1 · covert · Clutch Case"}, {"name": "AK-47 | Fuel Injector (Field-Tested)", "segment": "P1 · covert · Operation Wildfire Case"}, {"name": "AWP | Chromatic Aberration (Field-Tested)", "segment": "P1 · covert · Recoil Case"}, {"name": "Glock-18 | Gold Toof (Minimal Wear)", "segment": "P1 · covert · Gallery Case"}, {"name": "M4A4 | In Living Color (Minimal Wear)", "segment": "P1 · covert · Snakebite Case"}, {"name": "M4A1-S | Cyrex (Minimal Wear)", "segment": "P1 · covert · Operation Breakout Weapon Case"}, {"name": "FAMAS | Commemoration (Minimal Wear)", "segment": "P1 · covert · CS20 Case"}, {"name": "AK-47 | Neon Revolution (Field-Tested)", "segment": "P1 · covert · Gamma 2 Case"}, {"name": "SSG 08 | Blood in the Water (Minimal Wear)", "segment": "P1 · covert · CS:GO Weapon Case 2"}, {"name": "Glock-18 | Neo-Noir (Field-Tested)", "segment": "P1 · covert · Operation Broken Fang Case"}, {"name": "USP-S | Neo-Noir (Field-Tested)", "segment": "P1 · covert · Spectrum Case"}, {"name": "M4A1-S | Chantico's Fire (Field-Tested)", "segment": "P1 · covert · Chroma 3 Case"}, {"name": "Five-SeveN | Angry Mob (Field-Tested)", "segment": "P1 · covert · Prisma Case"}, {"name": "AK-47 | Fire Serpent (Field-Tested)", "segment": "P1 · covert · Operation Bravo Case"}, {"name": "M4A1-S | Mecha Industries (Field-Tested)", "segment": "P1 · covert · Gamma Case"}, {"name": "Galil AR | Chatterbox (Battle-Scarred)", "segment": "P1 · covert · Chroma Case"}, {"name": "AWP | Containment Breach (Field-Tested)", "segment": "P1 · covert · Shattered Web Case"}, {"name": "SSG 08 | Dragonfire (Factory New)", "segment": "P1 · covert · Glove Case"}, {"name": "AUG | Chameleon (Minimal Wear)", "segment": "P1 · covert · Operation Phoenix Weapon Case"}, {"name": "M4A4 | Asiimov (Battle-Scarred)", "segment": "P1 · covert · Winter Offensive Weapon Case"}, {"name": "AK-47 | Jaguar (Field-Tested)", "segment": "P1 · covert · eSports 2014 Summer Case"}, {"name": "R8 Revolver | Fade (Minimal Wear)", "segment": "P1 · covert · Revolver Case"}, {"name": "AK-47 | Wasteland Rebel (Field-Tested)", "segment": "P1 · covert · Operation Vanguard Weapon Case"}, {"name": "Desert Eagle | Ocean Drive (Field-Tested)", "segment": "P1 · covert · Operation Riptide Case"}, {"name": "AWP | Oni Taiji (Minimal Wear)", "segment": "P1 · covert · Operation Hydra Case"}, {"name": "M4A4 | X-Ray (Minimal Wear)", "segment": "P1 · covert · eSports 2013 Winter Case"}, {"name": "P90 | Death by Kitty (Minimal Wear)", "segment": "P1 · covert · eSports 2013 Case"}, {"name": "CZ75-Auto | Victoria (Minimal Wear)", "segment": "P1 · covert · CS:GO Weapon Case 3"}, {"name": "★ Driver Gloves | Brocade Crane (Field-Tested)", "segment": "P1 · pool · Sealed Dead Hand Terminal"}, {"name": "★ Kukri Knife | Slaughter (Minimal Wear)", "segment": "P1 · pool · Kilowatt Case"}, {"name": "★ Navaja Knife", "segment": "P1 · pool · Danger Zone Case"}, {"name": "★ Shadow Daggers", "segment": "P1 · pool · Shadow Case"}, {"name": "★ Falchion Knife | Fade (Factory New)", "segment": "P1 · pool · Falchion Case"}, {"name": "Glock-18 | Bullet Queen (Field-Tested)", "segment": "P1 · covert · Prisma 2 Case"}, {"name": "M4A4 | Desert-Strike (Minimal Wear)", "segment": "P1 · covert · Huntsman Weapon Case"}, {"name": "P250 | See Ya Later (Field-Tested)", "segment": "P1 · covert · Spectrum 2 Case"}, {"name": "MAC-10 | Neon Rider (Minimal Wear)", "segment": "P1 · covert · Chroma 2 Case"}, {"name": "M4A4 | The Battlestar (Minimal Wear)", "segment": "P1 · covert · Operation Wildfire Case"}, {"name": "★ Kukri Knife | Crimson Web (Field-Tested)", "segment": "P1 · pool · Gallery Case"}, {"name": "P90 | Asiimov (Field-Tested)", "segment": "P1 · covert · Operation Breakout Weapon Case"}, {"name": "★ Classic Knife | Fade (Factory New)", "segment": "P1 · pool · CS20 Case"}, {"name": "FAMAS | Roll Cage (Field-Tested)", "segment": "P1 · covert · Gamma 2 Case"}, {"name": "PP-Bizon | Judgement of Anubis (Field-Tested)", "segment": "P1 · covert · Chroma 3 Case"}, {"name": "Desert Eagle | Golden Koi (Factory New)", "segment": "P1 · covert · Operation Bravo Case"}, {"name": "Glock-18 | Wasteland Rebel (Minimal Wear)", "segment": "P1 · covert · Gamma Case"}, {"name": "AWP | Man-o'-war (Minimal Wear)", "segment": "P1 · covert · Chroma Case"}, {"name": "MAC-10 | Stalker (Field-Tested)", "segment": "P1 · covert · Shattered Web Case"}, {"name": "M4A4 | Buzz Kill (Minimal Wear)", "segment": "P1 · covert · Glove Case"}, {"name": "★ M9 Bayonet", "segment": "P1 · pool · Operation Phoenix Weapon Case"}, {"name": "Sawed-Off | The Kraken (Factory New)", "segment": "P1 · covert · Winter Offensive Weapon Case"}, {"name": "M4A4 | Bullet Rain (Minimal Wear)", "segment": "P1 · covert · eSports 2014 Summer Case"}, {"name": "M4A4 | Royal Paladin (Minimal Wear)", "segment": "P1 · covert · Revolver Case"}, {"name": "P2000 | Fire Elemental (Minimal Wear)", "segment": "P1 · covert · Operation Vanguard Weapon Case"}, {"name": "AK-47 | Leet Museo (Field-Tested)", "segment": "P1 · covert · Operation Riptide Case"}, {"name": "★ Sport Gloves | Pandora's Box (Field-Tested)", "segment": "P1 · pool · Operation Hydra Case"}, {"name": "★ Gut Knife", "segment": "P1 · pool · eSports 2013 Case"}, {"name": "★ Driver Gloves | Wave Chaser (Field-Tested)", "segment": "P1 · pool · Sealed Dead Hand Terminal"}, {"name": "★ Talon Knife | Fade (Factory New)", "segment": "P1 · pool · Danger Zone Case"}, {"name": "★ Shadow Daggers | Fade (Factory New)", "segment": "P1 · pool · Shadow Case"}, {"name": "★ Falchion Knife", "segment": "P1 · pool · Falchion Case"}, {"name": "★ Huntsman Knife | Fade (Factory New)", "segment": "P1 · pool · Huntsman Weapon Case"}, {"name": "★ Bayonet | Doppler (Factory New)", "segment": "P1 · pool · Chroma 2 Case"}, {"name": "★ Bowie Knife", "segment": "P1 · pool · Operation Wildfire Case"}, {"name": "★ Butterfly Knife | Fade (Factory New)", "segment": "P1 · pool · Operation Breakout Weapon Case"}, {"name": "★ Classic Knife", "segment": "P1 · pool · CS20 Case"}, {"name": "★ Bayonet | Black Laminate (Field-Tested)", "segment": "P1 · pool · Gamma 2 Case"}, {"name": "★ Karambit | Tiger Tooth (Factory New)", "segment": "P1 · pool · Chroma 3 Case"}, {"name": "★ Bayonet | Lore (Field-Tested)", "segment": "P1 · pool · Gamma Case"}, {"name": "★ Bayonet", "segment": "P1 · pool · Winter Offensive Weapon Case"}, {"name": "★ Bayonet | Fade (Factory New)", "segment": "P1 · pool · Revolver Case"}, {"name": "★ Huntsman Knife | Lore (Field-Tested)", "segment": "P1 · pool · Operation Riptide Case"}, {"name": "★ Specialist Gloves | Big Swell (Field-Tested)", "segment": "P1 · pool · Sealed Dead Hand Terminal"}, {"name": "★ Shadow Daggers | Crimson Web (Field-Tested)", "segment": "P1 · pool · Shadow Case"}, {"name": "★ Falchion Knife | Slaughter (Minimal Wear)", "segment": "P1 · pool · Falchion Case"}, {"name": "★ Huntsman Knife", "segment": "P1 · pool · Huntsman Weapon Case"}, {"name": "★ Bowie Knife | Crimson Web (Field-Tested)", "segment": "P1 · pool · Operation Wildfire Case"}, {"name": "★ Butterfly Knife | Urban Masked (Field-Tested)", "segment": "P1 · pool · Operation Breakout Weapon Case"}, {"name": "★ Classic Knife | Slaughter (Minimal Wear)", "segment": "P1 · pool · CS20 Case"}, {"name": "★ Gut Knife | Black Laminate (Field-Tested)", "segment": "P1 · pool · Gamma 2 Case"}, {"name": "★ Bayonet | Autotronic (Field-Tested)", "segment": "P1 · pool · Gamma Case"}, {"name": "★ Bowie Knife | Black Laminate (Field-Tested)", "segment": "P1 · pool · Operation Riptide Case"}, {"name": "★ Specialist Gloves | Cloud Chaser (Field-Tested)", "segment": "P1 · pool · Sealed Dead Hand Terminal"}, {"name": "★ Shadow Daggers | Night (Field-Tested)", "segment": "P1 · pool · Shadow Case"}, {"name": "★ Falchion Knife | Crimson Web (Field-Tested)", "segment": "P1 · pool · Falchion Case"}, {"name": "★ Huntsman Knife | Slaughter (Minimal Wear)", "segment": "P1 · pool · Huntsman Weapon Case"}, {"name": "★ Bowie Knife | Slaughter (Minimal Wear)", "segment": "P1 · pool · Operation Wildfire Case"}, {"name": "★ Butterfly Knife | Night (Field-Tested)", "segment": "P1 · pool · Operation Breakout Weapon Case"}, {"name": "★ Classic Knife | Crimson Web (Field-Tested)", "segment": "P1 · pool · CS20 Case"}, {"name": "★ Falchion Knife | Lore (Field-Tested)", "segment": "P1 · pool · Operation Riptide Case"}, {"name": "★ Huntsman Knife | Slaughter (Factory New)", "segment": "P1 · pool · Huntsman Weapon Case"}, {"name": "★ Bowie Knife | Fade (Factory New)", "segment": "P1 · pool · Operation Wildfire Case"}, {"name": "★ Butterfly Knife | Slaughter (Minimal Wear)", "segment": "P1 · pool · Operation Breakout Weapon Case"}, {"name": "M4A4 | Tooth Fairy (Field-Tested)", "segment": "P2 · classified · Fracture Case"}, {"name": "MP9 | Food Chain (Field-Tested)", "segment": "P2 · classified · Snakebite Case"}, {"name": "AK-47 | Searing Rage (Field-Tested)", "segment": "P2 · classified · Fever Case"}, {"name": "Glock-18 | Water Elemental (Minimal Wear)", "segment": "P2 · classified · Operation Breakout Weapon Case"}, {"name": "USP-S | Cortex (Minimal Wear)", "segment": "P2 · classified · Clutch Case"}, {"name": "FAMAS | Rapid Eye Movement (Field-Tested)", "segment": "P2 · classified · Dreams & Nightmares Case"}, {"name": "Desert Eagle | Kumicho Dragon (Field-Tested)", "segment": "P2 · classified · Operation Wildfire Case"}, {"name": "Galil AR | Eco (Field-Tested)", "segment": "P2 · classified · Chroma 2 Case"}, {"name": "M4A4 | 龍王 (Dragon King) (Minimal Wear)", "segment": "P2 · classified · Chroma Case"}, {"name": "M4A1-S | Decimator (Minimal Wear)", "segment": "P2 · classified · Spectrum Case"}, {"name": "MAC-10 | Disco Tech (Field-Tested)", "segment": "P2 · classified · Prisma 2 Case"}, {"name": "P250 | Kintsugi (Field-Tested)", "segment": "P2 · classified · Sealed Dead Hand Terminal"}, {"name": "P250 | Visions (Field-Tested)", "segment": "P2 · classified · Recoil Case"}, {"name": "P250 | Asiimov (Field-Tested)", "segment": "P2 · classified · Chroma 3 Case"}, {"name": "MP9 | Hydra (Field-Tested)", "segment": "P2 · classified · CS20 Case"}, {"name": "AK-47 | Point Disarray (Field-Tested)", "segment": "P2 · classified · Revolver Case"}, {"name": "Tec-9 | Decimator (Field-Tested)", "segment": "P2 · classified · Shattered Web Case"}, {"name": "UMP-45 | Wild Child (Field-Tested)", "segment": "P2 · classified · Revolution Case"}, {"name": "AK-47 | The Outsiders (Field-Tested)", "segment": "P2 · classified · Gallery Case"}, {"name": "Tec-9 | Fuel Injector (Field-Tested)", "segment": "P2 · classified · Gamma 2 Case"}, {"name": "SSG 08 | Turbo Peek (Minimal Wear)", "segment": "P2 · classified · Operation Riptide Case"}, {"name": "M4A1-S | Leaded Glass (Field-Tested)", "segment": "P2 · classified · Spectrum 2 Case"}, {"name": "AWP | Redline (Field-Tested)", "segment": "P2 · classified · Winter Offensive Weapon Case"}, {"name": "USP-S | Monster Mashup (Field-Tested)", "segment": "P2 · classified · Operation Broken Fang Case"}, {"name": "MP5-SD | Phosphor (Field-Tested)", "segment": "P2 · classified · Danger Zone Case"}, {"name": "XM1014 | Tranquility (Minimal Wear)", "segment": "P2 · classified · Operation Vanguard Weapon Case"}, {"name": "XM1014 | Incinegator (Field-Tested)", "segment": "P2 · classified · Prisma Case"}, {"name": "Desert Eagle | Cobalt Disruption (Factory New)", "segment": "P2 · classified · eSports 2013 Winter Case"}, {"name": "AWP | Graphite (Factory New)", "segment": "P2 · classified · Operation Bravo Case"}, {"name": "SSG 08 | Big Iron (Field-Tested)", "segment": "P2 · classified · Shadow Case"}, {"name": "AK-47 | Case Hardened (Minimal Wear)", "segment": "P2 · classified · CS:GO Weapon Case"}, {"name": "M4A1-S | Atomic Alloy (Minimal Wear)", "segment": "P2 · classified · Huntsman Weapon Case"}, {"name": "AWP | BOOM (Minimal Wear)", "segment": "P2 · classified · eSports 2013 Case"}, {"name": "Galil AR | Chromatic Aberration (Field-Tested)", "segment": "P2 · classified · Snakebite Case"}, {"name": "Desert Eagle | Conspiracy (Factory New)", "segment": "P2 · classified · Operation Breakout Weapon Case"}, {"name": "AWP | Mortis (Field-Tested)", "segment": "P2 · classified · Clutch Case"}, {"name": "Dual Berettas | Melondrama (Field-Tested)", "segment": "P2 · classified · Dreams & Nightmares Case"}, {"name": "Five-SeveN | Monkey Business (Field-Tested)", "segment": "P2 · classified · Chroma 2 Case"}, {"name": "P250 | Muertos (Minimal Wear)", "segment": "P2 · classified · Chroma Case"}, {"name": "AWP | Fever Dream (Minimal Wear)", "segment": "P2 · classified · Spectrum Case"}, {"name": "AK-47 | Phantom Disruptor (Field-Tested)", "segment": "P2 · classified · Prisma 2 Case"}, {"name": "UMP-45 | Primal Saber (Field-Tested)", "segment": "P2 · classified · Chroma 3 Case"}, {"name": "SSG 08 | Bloodshot (Field-Tested)", "segment": "P2 · classified · Shattered Web Case"}, {"name": "UMP-45 | Neo-Noir (Field-Tested)", "segment": "P2 · classified · Gallery Case"}, {"name": "MP9 | Airlock (Field-Tested)", "segment": "P2 · classified · Gamma 2 Case"}, {"name": "Glock-18 | Snack Attack (Field-Tested)", "segment": "P2 · classified · Operation Riptide Case"}, {"name": "M4A1-S | Guardian (Minimal Wear)", "segment": "P2 · classified · Winter Offensive Weapon Case"}, {"name": "AUG | Momentum (Field-Tested)", "segment": "P2 · classified · Prisma Case"}, {"name": "SSG 08 | Fever Dream (Minimal Wear)", "segment": "P3 · restricted · Prisma 2 Case"}, {"name": "Desert Eagle | Light Rail (Minimal Wear)", "segment": "P3 · restricted · Prisma Case"}, {"name": "M4A4 | Evil Daimyo (Minimal Wear)", "segment": "P3 · restricted · Falchion Case"}, {"name": "Glock-18 | Moonrise (Minimal Wear)", "segment": "P3 · restricted · Clutch Case"}, {"name": "M4A4 | Spider Lily (Field-Tested)", "segment": "P3 · restricted · Operation Riptide Case"}, {"name": "MAC-10 | Saibā Oni (Minimal Wear)", "segment": "P3 · restricted · Gallery Case"}, {"name": "Galil AR | Control (Field-Tested)", "segment": "P3 · restricted · Fever Case"}, {"name": "Desert Eagle | Crimson Web (Field-Tested)", "segment": "P3 · restricted · eSports 2014 Summer Case"}, {"name": "M4A1-S | Basilisk (Field-Tested)", "segment": "P3 · restricted · Operation Vanguard Weapon Case"}, {"name": "Sawed-Off | Analog Input (Field-Tested)", "segment": "P3 · restricted · Kilowatt Case"}, {"name": "Desert Eagle | Trigger Discipline (Minimal Wear)", "segment": "P3 · restricted · Snakebite Case"}, {"name": "FAMAS | Valence (Field-Tested)", "segment": "P3 · restricted · Operation Wildfire Case"}, {"name": "Galil AR | Crimson Tsunami (Minimal Wear)", "segment": "P3 · restricted · Spectrum Case"}, {"name": "P250 | Nevermore (Minimal Wear)", "segment": "P3 · restricted · Danger Zone Case"}, {"name": "AK-47 | Blue Laminate (Minimal Wear)", "segment": "P3 · restricted · eSports 2013 Winter Case"}, {"name": "MAG-7 | Monster Call (Minimal Wear)", "segment": "P3 · restricted · Fracture Case"}, {"name": "AWP | Worm God (Minimal Wear)", "segment": "P3 · restricted · Chroma 2 Case"}, {"name": "USP-S | Cyrex (Factory New)", "segment": "P3 · restricted · Glove Case"}, {"name": "Dual Berettas | Flora Carnivora (Minimal Wear)", "segment": "P3 · restricted · Recoil Case"}, {"name": "XM1014 | Black Tie (Minimal Wear)", "segment": "P3 · restricted · Chroma 3 Case"}, {"name": "AWP | PAW (Minimal Wear)", "segment": "P3 · restricted · Horizon Case"}, {"name": "AWP | Exoskeleton (Field-Tested)", "segment": "P3 · restricted · Operation Broken Fang Case"}, {"name": "AWP | Phobos (Minimal Wear)", "segment": "P3 · restricted · Gamma Case"}, {"name": "MP9 | Ruby Poison Dart (Minimal Wear)", "segment": "P3 · restricted · Falchion Case"}, {"name": "SSG 08 | Rapid Transit (Minimal Wear)", "segment": "P3 · restricted · Gallery Case"}, {"name": "M4A4 | Etch Lord (Minimal Wear)", "segment": "P3 · restricted · Kilowatt Case"}, {"name": "Galil AR | Signal (Minimal Wear)", "segment": "P3 · restricted · Danger Zone Case"}, {"name": "SG 553 | Dragon Tech (Field-Tested)", "segment": "P3 · restricted · Recoil Case"}, {"name": "Galil AR | Firefight (Minimal Wear)", "segment": "P3 · restricted · Chroma 3 Case"}];
+const STORE_KEY = "cs2-steam-manual-v1_tier2";
+let data = {};   // name -> {price_prefix, price_suffix, prices, captured_at}
+
+function save() {
+  try { localStorage.setItem(STORE_KEY, JSON.stringify(data)); }
+  catch (e) {
+    showBanner("This browser can't store more progress. Click Download data now; " +
+               "later you can use Load file to carry on.");
+  }
+}
+function restore() {
+  try { data = JSON.parse(localStorage.getItem(STORE_KEY) || "{}") || {}; }
+  catch (e) { data = {}; }
+}
+function showBanner(msg) { const b = document.getElementById("banner"); b.textContent = msg; b.style.display = "block"; }
+
+function historyUrl(name) {
+  return "https://steamcommunity.com/market/pricehistory/?appid=730&market_hash_name=" + encodeURIComponent(name);
+}
+function listingUrl(name) {
+  return "https://steamcommunity.com/market/listings/730/" + encodeURIComponent(name);
+}
+function describe(rec) {
+  const p = rec.prices;
+  return `✓ ${p.length} points, ${p[0][0].slice(0, 11)} → ${p[p.length - 1][0].slice(0, 11)}`;
+}
+
+function render() {
+  const tbody = document.getElementById("rows");
+  tbody.innerHTML = "";
+  ITEMS.forEach((it, i) => {
+    const tr = document.createElement("tr");
+    const rec = data[it.name];
+    if (rec) tr.className = "done";
+    tr.innerHTML = `
+      <td class="n">${i + 1}</td>
+      <td class="name"><div>${escapeHtml(it.name)}</div><div class="seg">${escapeHtml(it.segment)}</div>
+          <a href="${historyUrl(it.name)}" target="_blank" rel="noopener">Open price history</a>
+          · <a href="${listingUrl(it.name)}" target="_blank" rel="noopener">listing</a></td>
+      <td><textarea placeholder="paste JSON here"></textarea></td>
+      <td class="status ${rec ? "ok" : ""}">${rec ? describe(rec) : ""}</td>`;
+    const ta = tr.querySelector("textarea"), st = tr.querySelector(".status");
+    ta.addEventListener("input", () => accept(it.name, ta, st, tr));
+    tbody.appendChild(tr);
+  });
+  updateCount();
+}
+
+function accept(name, ta, st, tr) {
+  const text = ta.value.trim();
+  if (!text) return;
+  let obj;
+  try { obj = JSON.parse(text); }
+  catch (e) { st.className = "status bad"; st.textContent = "Not complete JSON yet: copy the whole page."; return; }
+  if (Array.isArray(obj) && obj.length === 0) {
+    st.className = "status bad"; st.textContent = "Empty ([]): log in to Steam in this browser, then reopen the link."; return;
+  }
+  if (!obj || obj.success !== true || !Array.isArray(obj.prices) || obj.prices.length === 0) {
+    st.className = "status bad"; st.textContent = "Doesn't look like a price history (success/prices missing)."; return;
+  }
+  data[name] = { price_prefix: obj.price_prefix || "", price_suffix: obj.price_suffix || "",
+                 prices: obj.prices, captured_at: new Date().toISOString() };
+  ta.value = "";
+  st.className = "status ok"; st.textContent = describe(data[name]);
+  tr.className = "done";
+  save(); updateCount();
+}
+
+function updateCount() {
+  const n = ITEMS.filter(it => data[it.name]).length;
+  document.getElementById("count").textContent = `${n} / ${ITEMS.length}`;
+  document.getElementById("fill").style.width = (ITEMS.length ? 100 * n / ITEMS.length : 0) + "%";
+}
+
+function escapeHtml(s) {
+  return s.replace(/[&<>"']/g, c => ({"&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;"}[c]));
+}
+
+document.getElementById("dl").addEventListener("click", () => {
+  const bundle = { format: "steam_pricehistory_manual_v1", saved_at: new Date().toISOString(), items: data };
+  const blob = new Blob([JSON.stringify(bundle)], { type: "application/json" });
+  const stamp = new Date().toISOString().slice(0, 16).replace(/[-:]/g, "").replace("T", "-");
+  const a = document.createElement("a");
+  a.href = URL.createObjectURL(blob);
+  a.download = `steam_pricehistory_manual_${stamp}.json`;
+  a.click();
+  URL.revokeObjectURL(a.href);
+});
+
+document.getElementById("load").addEventListener("change", async (ev) => {
+  const file = ev.target.files[0];
+  if (!file) return;
+  try {
+    const bundle = JSON.parse(await file.text());
+    if (bundle.format !== "steam_pricehistory_manual_v1") throw new Error("unexpected format");
+    Object.assign(data, bundle.items);
+    save(); render();
+  } catch (e) { showBanner("Could not load that file: " + e.message); }
+  ev.target.value = "";
+});
+
+document.getElementById("clear").addEventListener("click", () => {
+  if (confirm("Delete all collected data from this page? (Download it first if you want to keep it.)")) {
+    data = {}; save(); render();
+  }
+});
+
+const LIST_NAME = "tier2";
+if (LIST_NAME) document.getElementById("listname").textContent = " (" + LIST_NAME + ")";
+restore();
+render();
+</script>
+</body>
+</html>

@@ -1,0 +1,25 @@
+cases,n,n_below,median_ratio
+Chroma 2 Case,5,5,0.379
+Chroma Case,3,3,0.380
+Chroma 3 Case,2,2,0.419
+Gamma 2 Case,3,2,0.838
+Dreams & Nightmares Case,9,3,0.877
+Gamma Case,3,1,0.920
+Prisma 2 Case,4,1,0.923
+Fever Case,8,2,0.976
+Prisma Case,3,1,0.988
+Operation Breakout Weapon Case,3,0,0.990
+Spectrum 2 Case,6,0,1.077
+Revolver Case,2,0,1.106
+Danger Zone Case,2,0,1.215
+Horizon Case,3,0,1.579
+Operation Vanguard Weapon Case,1,0,1.638
+Operation Riptide Case,4,0,1.705
+Spectrum Case,6,0,1.937
+Fracture Case,4,0,1.978
+Falchion Case,3,0,2.278
+Operation Phoenix Weapon Case,2,0,2.678
+Kilowatt Case,9,0,3.318
+CS20 Case,1,0,3.841
+Gallery Case,5,0,5.194
+Shattered Web Case,2,0,6.142

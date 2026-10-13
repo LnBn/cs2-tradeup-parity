@@ -1,0 +1,4 @@
+segment,n,spearman_rho
+Covert (gold pool),23,-0.859
+Classified (case),11,-0.636
+Restricted (case),9,-0.383

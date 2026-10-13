@@ -1,0 +1,5 @@
+group,stattrak,n_items,n_cases,median_ratio,share_below_0.85,cheapest_per_case_median_ratio,cheapest_per_case_iqr,share_cases_cheapest_in_0.85-1.25
+Covert (eligible),False,285,43,1.284,0.000,1.126,1.06-1.25,0.744
+Covert (eligible),True,93,24,1.194,0.215,1.026,0.82-1.61,0.250
+Classified (placebo),False,400,43,0.193,0.887,0.130,0.11-0.27,0.000
+Classified (placebo),True,142,28,0.191,0.880,0.173,0.09-0.54,0.071

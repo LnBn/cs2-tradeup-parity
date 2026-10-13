@@ -1,0 +1,2 @@
+n_items,median_days_to_0.9_pstar,share_within_3_days,share_never_in_120_days,n_material_gap,median_item_half_life_material,pooled_half_life,pooled_half_life_ci,pooled_share_closed_asymptote
+13,0.000,0.846,0.000,6,0.375,0.346,0.29-4.19,1.085

@@ -1,0 +1,15 @@
+# Raw and processed data are never committed (see README "Data")
+data/
+
+# Python
+__pycache__/
+*.py[cod]
+.ipynb_checkpoints/
+
+# Local environment and editor files
+.env
+.venv/
+*.log
+.DS_Store
+.vscode/
+.idea/

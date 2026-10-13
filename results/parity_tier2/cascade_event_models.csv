@@ -1,0 +1,9 @@
+model,slope,se,intercept,r2,n,log_price_coef,log_price_se,tier,output_index_items,output_shift,boot_lo,boot_hi,n_below_floor_pre
+"change ~ max(0, gap)  [parity]",0.780,0.039,0.196,0.878,58,,,Classified -> Covert,83,0.224,0.709,0.835,31
+"placebo: pre-window change ~ max(0, gap)",0.040,0.021,0.008,0.062,58,,,Classified -> Covert,83,0.224,,,31
+change ~ log pre-event price  [rival],-0.257,0.035,1.079,0.490,58,,,Classified -> Covert,83,0.224,,,31
+"joint: change ~ max(0,gap) + log price",0.715,0.052,0.310,0.887,58,-0.042,0.023,Classified -> Covert,83,0.224,,,31
+"change ~ max(0, gap)  [parity]",0.960,0.271,0.221,0.259,38,,,Restricted -> Classified,58,0.197,0.710,2.387,7
+"placebo: pre-window change ~ max(0, gap)",0.224,0.223,-0.087,0.027,38,,,Restricted -> Classified,58,0.197,,,7
+change ~ log pre-event price  [rival],-0.117,0.040,0.349,0.187,38,,,Restricted -> Classified,58,0.197,,,7
+"joint: change ~ max(0,gap) + log price",0.735,0.342,0.268,0.301,38,-0.052,0.049,Restricted -> Classified,58,0.197,,,7
