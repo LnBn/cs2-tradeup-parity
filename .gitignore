@@ -13,3 +13,16 @@ __pycache__/
 .DS_Store
 .vscode/
 .idea/
+
+# Per-item market prices and volumes (Skinport snapshot, Steam price levels) are not
+# published; the scripts regenerate these files from your own data.
+results/parity/cross_section.csv
+results/parity/cascade_cross_section.csv
+results/parity/event_gap.csv
+results/parity/cascade_event_gap.csv
+results/parity/stattrak_worst_phase_rows.csv
+results/parity/stattrak_pool_decomposition_chroma2.csv
+results/parity_tier2/cascade_event_gap_classified.csv
+results/parity_tier2/cascade_event_gap_restricted.csv
+results/parity_tier2/covert_event_gap_case.csv
+results/parity_tier2/covert_event_gap_global.csv

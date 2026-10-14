@@ -44,8 +44,12 @@ def round_robin(df: pd.DataFrame, key: str, order=None) -> list[dict]:
 
 
 if args.list is None:
-    # Pilot sample: interleave segments, most liquid (Skinport 90-day volume) first.
-    df = pd.read_csv(PROJECT_ROOT / "results" / "sample.csv").sort_values("vol_90d", ascending=False)
+    # Pilot sample: interleave segments, most liquid (Skinport 90-day volume) first. The shipped
+    # sample.csv is already in that order (its price and volume columns are not published);
+    # a freshly reselected sample still carries vol_90d and is sorted here.
+    df = pd.read_csv(PROJECT_ROOT / "results" / "sample.csv")
+    if "vol_90d" in df:
+        df = df.sort_values("vol_90d", ascending=False)
     items = [{"name": r["market_hash_name"], "segment": r["segment"]}
              for r in round_robin(df, "segment", SEGMENTS)]
 else:
