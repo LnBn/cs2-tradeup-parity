@@ -1,4 +1,4 @@
-# How one rule change crashed the Counter-Strike 2 knife market
+# Counter Strike 2 market crash
 
 On 22 October 2025, Valve changed one rule in Counter-Strike 2: **five Covert (red) weapon skins can now be exchanged for one knife or pair of gloves** from the same case. Knives and gloves are the game's most expensive items, and until then they could only be found by opening cases. Within three days their prices on the Steam marketplace had fallen by almost half, and they have not recovered.
 
